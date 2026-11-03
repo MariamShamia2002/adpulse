@@ -1,0 +1,20 @@
+---
+description: Default git commit message format for AdPulse
+alwaysApply: true
+---
+
+# Commit messages
+
+When creating git commits, always use this pattern:
+
+```text
+type(scope): short summary
+
+- Point of change
+- Point of change
+```
+
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+- Include a scope (e.g. `layout`, `api`, `overview`)
+- Summary: imperative, concise
+- Body: bullet points with `-` listing the concrete changes

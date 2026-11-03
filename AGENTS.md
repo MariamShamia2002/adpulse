@@ -133,7 +133,19 @@ Order imports as follows:
 
 ## Commits
 
-- Conventional commits: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+Use this pattern by default:
+
+```text
+type(scope): short summary
+
+- Point of change
+- Point of change
+```
+
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+- Scope is a short area name (e.g. `layout`, `api`, `overview`)
+- Summary is imperative and concise
+- Body is a bullet list (`-`) of the concrete changes
 
 ## Change scope
 
