@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors duration-150 ease-out',
+    'rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors duration-150 ease-out',
     isActive
       ? 'bg-surface-muted text-text'
       : 'text-text-secondary hover:text-text',
