@@ -1,17 +1,13 @@
 import { QueryClient } from '@tanstack/react-query'
 
+import { isApiError } from '@/api/errors'
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Don't retry on 4xx — only on transient errors (5xx / network)
+      // Don't retry on 4xx — only on transient errors (5xx, or status 0 for network failures)
       retry: (failureCount, error) => {
-        if (
-          typeof error === 'object' &&
-          error !== null &&
-          'status' in error &&
-          typeof (error as { status: number }).status === 'number' &&
-          (error as { status: number }).status < 500
-        ) {
+        if (isApiError(error) && error.status >= 400 && error.status < 500) {
           return false
         }
 
