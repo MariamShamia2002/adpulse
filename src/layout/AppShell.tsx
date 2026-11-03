@@ -23,7 +23,9 @@ export default function AppShell() {
             to="/"
             className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.01em] text-text"
           >
-            <Activity className="size-5 text-series-1" aria-hidden />
+            <div className="rounded-md bg-series-1 p-1">
+              <Activity className="size-5 text-white" aria-hidden />
+            </div>
             AdPulse
           </Link>
 
