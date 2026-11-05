@@ -1,8 +1,12 @@
 import { getErrorMessage } from '@/api/errors'
 import { FilterBar } from '@/features/overview/components/FilterBar'
 import { KpiTile } from '@/features/overview/components/KpiTile'
+import { SpendByPlatformChart } from '@/features/overview/components/SpendByPlatformChart'
+import { SpendRevenueChart } from '@/features/overview/components/SpendRevenueChart'
 import { useOverviewFilters } from '@/features/overview/hooks/useOverviewFilters'
+import { useOverviewSpendByPlatform } from '@/features/overview/hooks/useOverviewSpendByPlatform'
 import { useOverviewSummary } from '@/features/overview/hooks/useOverviewSummary'
+import { useOverviewTimeseries } from '@/features/overview/hooks/useOverviewTimeseries'
 import {
   formatComparedRange,
   formatCurrentRange,
@@ -22,6 +26,8 @@ export default function OverviewPage() {
   } = useOverviewFilters()
 
   const summaryQuery = useOverviewSummary(filters)
+  const timeseriesQuery = useOverviewTimeseries(filters)
+  const spendByPlatformQuery = useOverviewSpendByPlatform(filters)
 
   const previous =
     summaryQuery.data?.previousRange ??
@@ -103,6 +109,42 @@ export default function OverviewPage() {
             ))}
           </div>
         ) : null}
+      </section>
+
+      <section
+        aria-label="Overview charts"
+        className="grid grid-cols-1 gap-4 xl:grid-cols-2"
+      >
+        <SpendRevenueChart
+          data={timeseriesQuery.data}
+          compare={filters.compare}
+          isPending={timeseriesQuery.isPending}
+          isError={timeseriesQuery.isError}
+          errorMessage={
+            timeseriesQuery.isError
+              ? getErrorMessage(timeseriesQuery.error)
+              : undefined
+          }
+          onRetry={() => {
+            void timeseriesQuery.refetch()
+          }}
+          rangeLabel={subtitle}
+        />
+        <SpendByPlatformChart
+          data={spendByPlatformQuery.data}
+          platform={filters.platform}
+          isPending={spendByPlatformQuery.isPending}
+          isError={spendByPlatformQuery.isError}
+          errorMessage={
+            spendByPlatformQuery.isError
+              ? getErrorMessage(spendByPlatformQuery.error)
+              : undefined
+          }
+          onRetry={() => {
+            void spendByPlatformQuery.refetch()
+          }}
+          rangeLabel={subtitle}
+        />
       </section>
     </div>
   )
