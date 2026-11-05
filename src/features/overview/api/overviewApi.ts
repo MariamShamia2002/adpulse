@@ -1,5 +1,13 @@
 import { apiGet } from '@/api/client'
 import {
+  campaignsListSchema,
+  type CampaignsList,
+} from '@/features/overview/schemas/campaignsList'
+import {
+  conversionsByAgeSchema,
+  type ConversionsByAge,
+} from '@/features/overview/schemas/conversionsByAge'
+import {
   spendByPlatformSchema,
   type SpendByPlatform,
 } from '@/features/overview/schemas/spendByPlatform'
@@ -70,6 +78,35 @@ export async function fetchSpendByPlatform(
     `/api/overview/spend-by-platform?${params.toString()}`,
   )
   const parsed = spendByPlatformSchema.safeParse(data)
+  if (!parsed.success) throw parsed.error
+  return parsed.data
+}
+
+export async function fetchCampaignsByRoas(
+  filters: OverviewFilters,
+): Promise<CampaignsList> {
+  const params = buildOverviewParams(filters, { includeCompare: false })
+  params.set('sort', 'roas')
+  params.set('dir', 'desc')
+  params.set('pageSize', '6')
+
+  const data = await apiGet<unknown>(`/api/campaigns?${params.toString()}`)
+  const parsed = campaignsListSchema.safeParse(data)
+  if (!parsed.success) throw parsed.error
+  return parsed.data
+}
+
+export async function fetchConversionsByAge(
+  filters: OverviewFilters,
+): Promise<ConversionsByAge> {
+  const params = new URLSearchParams()
+  params.set('from', filters.from)
+  params.set('to', filters.to)
+
+  const data = await apiGet<unknown>(
+    `/api/overview/conversions-by-age?${params.toString()}`,
+  )
+  const parsed = conversionsByAgeSchema.safeParse(data)
   if (!parsed.success) throw parsed.error
   return parsed.data
 }
