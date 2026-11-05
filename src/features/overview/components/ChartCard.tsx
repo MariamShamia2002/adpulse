@@ -9,6 +9,7 @@ type ChartCardProps = {
   title: string
   subtitle?: string
   legend?: ReactNode
+  actions?: ReactNode
   state: 'loading' | 'error' | 'empty' | 'ready'
   errorMessage?: string
   onRetry?: () => void
@@ -21,6 +22,7 @@ export function ChartCard({
   title,
   subtitle,
   legend,
+  actions,
   state,
   errorMessage,
   onRetry,
@@ -44,7 +46,12 @@ export function ChartCard({
             </p>
           ) : null}
         </div>
-        {legend && state === 'ready' ? legend : null}
+        {actions || (legend && state === 'ready') ? (
+          <div className="flex flex-wrap items-center gap-3">
+            {actions}
+            {legend && state === 'ready' ? legend : null}
+          </div>
+        ) : null}
       </div>
 
       <div style={{ minHeight: chartHeight }}>
