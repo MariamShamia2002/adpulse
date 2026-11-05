@@ -1,8 +1,12 @@
 import { getErrorMessage } from '@/api/errors'
+import { ConversionsByAgeDonut } from '@/features/overview/components/ConversionsByAgeDonut'
 import { FilterBar } from '@/features/overview/components/FilterBar'
 import { KpiTile } from '@/features/overview/components/KpiTile'
+import { RoasByCampaignChart } from '@/features/overview/components/RoasByCampaignChart'
 import { SpendByPlatformChart } from '@/features/overview/components/SpendByPlatformChart'
 import { SpendRevenueChart } from '@/features/overview/components/SpendRevenueChart'
+import { useOverviewCampaignsRoas } from '@/features/overview/hooks/useOverviewCampaignsRoas'
+import { useOverviewConversionsByAge } from '@/features/overview/hooks/useOverviewConversionsByAge'
 import { useOverviewFilters } from '@/features/overview/hooks/useOverviewFilters'
 import { useOverviewSpendByPlatform } from '@/features/overview/hooks/useOverviewSpendByPlatform'
 import { useOverviewSummary } from '@/features/overview/hooks/useOverviewSummary'
@@ -16,6 +20,11 @@ import { CardSkeleton } from '@/shared/components/CardSkeleton'
 import { EmptyState } from '@/shared/components/EmptyState'
 import { ErrorState } from '@/shared/components/ErrorState'
 
+const kpiGridClass =
+  'grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]'
+const chartGridClass =
+  'grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(420px,1fr))]'
+
 export default function OverviewPage() {
   const {
     filters,
@@ -28,6 +37,8 @@ export default function OverviewPage() {
   const summaryQuery = useOverviewSummary(filters)
   const timeseriesQuery = useOverviewTimeseries(filters)
   const spendByPlatformQuery = useOverviewSpendByPlatform(filters)
+  const campaignsRoasQuery = useOverviewCampaignsRoas(filters)
+  const conversionsByAgeQuery = useOverviewConversionsByAge(filters)
 
   const previous =
     summaryQuery.data?.previousRange ??
@@ -68,7 +79,7 @@ export default function OverviewPage() {
 
       <section aria-label="Key performance indicators">
         {summaryQuery.isPending ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className={kpiGridClass}>
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
@@ -99,7 +110,7 @@ export default function OverviewPage() {
         ) : null}
 
         {summaryQuery.isSuccess && summaryQuery.data.kpis.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className={kpiGridClass}>
             {summaryQuery.data.kpis.map((kpi) => (
               <KpiTile
                 key={kpi.key}
@@ -111,10 +122,7 @@ export default function OverviewPage() {
         ) : null}
       </section>
 
-      <section
-        aria-label="Overview charts"
-        className="grid grid-cols-1 gap-4 xl:grid-cols-2"
-      >
+      <section aria-label="Overview charts" className={chartGridClass}>
         <SpendRevenueChart
           data={timeseriesQuery.data}
           compare={filters.compare}
@@ -142,6 +150,40 @@ export default function OverviewPage() {
           }
           onRetry={() => {
             void spendByPlatformQuery.refetch()
+          }}
+          rangeLabel={subtitle}
+        />
+      </section>
+
+      <section aria-label="Campaign and audience charts" className={chartGridClass}>
+        <RoasByCampaignChart
+          data={campaignsRoasQuery.data?.items}
+          from={filters.from}
+          to={filters.to}
+          compare={filters.compare}
+          isPending={campaignsRoasQuery.isPending}
+          isError={campaignsRoasQuery.isError}
+          errorMessage={
+            campaignsRoasQuery.isError
+              ? getErrorMessage(campaignsRoasQuery.error)
+              : undefined
+          }
+          onRetry={() => {
+            void campaignsRoasQuery.refetch()
+          }}
+          rangeLabel={subtitle}
+        />
+        <ConversionsByAgeDonut
+          data={conversionsByAgeQuery.data}
+          isPending={conversionsByAgeQuery.isPending}
+          isError={conversionsByAgeQuery.isError}
+          errorMessage={
+            conversionsByAgeQuery.isError
+              ? getErrorMessage(conversionsByAgeQuery.error)
+              : undefined
+          }
+          onRetry={() => {
+            void conversionsByAgeQuery.refetch()
           }}
           rangeLabel={subtitle}
         />
