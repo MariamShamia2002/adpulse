@@ -11,6 +11,7 @@ import {
   RoasCampaignNameTick,
 } from '@/features/overview/components/RoasCampaignNameTick'
 import { RoasCampaignTooltip } from '@/features/overview/components/RoasCampaignTooltip'
+import { RoasTargetLabel } from '@/features/overview/components/RoasTargetLabel'
 import { buildCampaignFilterSearch } from '@/features/overview/lib/campaignNav'
 import type { CampaignListItem } from '@/features/overview/schemas/campaignsList'
 import { formatRatio } from '@/shared/utils/formatters'
@@ -91,7 +92,7 @@ export function RoasByCampaignChart({
         <BarChart
           data={chartData}
           layout="vertical"
-          margin={{ top: 8, right: 48, left: 0, bottom: 0 }}
+          margin={{ top: 20, right: 48, left: 0, bottom: 4 }}
           barCategoryGap={2}
         >
           <XAxis type="number" domain={[0, xMax]} hide />
@@ -102,6 +103,7 @@ export function RoasByCampaignChart({
             tickLine={false}
             axisLine={false}
             reversed
+            interval={0}
             tick={(props) => (
               <RoasCampaignNameTick {...props} rows={chartData} search={search} />
             )}
@@ -111,12 +113,7 @@ export function RoasByCampaignChart({
             x={ROAS_TARGET}
             stroke="var(--text-muted)"
             strokeDasharray="4 4"
-            label={{
-              value: 'target 3.0×',
-              position: 'top',
-              fill: 'var(--text-muted)',
-              fontSize: 11,
-            }}
+            label={<RoasTargetLabel />}
           />
           <Bar
             dataKey="roas"
