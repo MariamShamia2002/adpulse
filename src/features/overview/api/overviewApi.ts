@@ -97,7 +97,7 @@ export async function fetchCampaignsByRoas(
 }
 
 export async function fetchConversionsByAge(
-  filters: OverviewFilters,
+  filters: Pick<OverviewFilters, 'from' | 'to'>,
 ): Promise<ConversionsByAge> {
   const params = new URLSearchParams()
   params.set('from', filters.from)
