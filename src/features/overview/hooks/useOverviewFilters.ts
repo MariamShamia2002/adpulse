@@ -57,7 +57,7 @@ export function useOverviewFilters() {
     [filters.from, filters.to],
   )
 
-  // Seed default from/to/compare into the URL on first visit / invalid custom ranges
+  // Seed default from/to/compare into the URL on first visit 
   useEffect(() => {
     const defaults = getDefaultRange()
     const from = searchParams.get('from')
