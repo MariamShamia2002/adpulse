@@ -1,22 +1,20 @@
 import { useMemo, useState } from 'react'
 import { Cell, Pie, PieChart } from 'recharts'
 
+import { getErrorMessage } from '@/api/errors'
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import { ChartCard } from '@/features/overview/components/ChartCard'
 import { ConversionsByAgeLegend } from '@/features/overview/components/ConversionsByAgeLegend'
 import { ConversionsByAgeTable } from '@/features/overview/components/ConversionsByAgeTable'
 import { ConversionsByAgeTooltip } from '@/features/overview/components/ConversionsByAgeTooltip'
+import { useOverviewConversionsByAge } from '@/features/overview/hooks/useOverviewConversionsByAge'
 import { AGE_SERIES_COLORS } from '@/features/overview/lib/ageSeriesColors'
-import type { ConversionsByAge } from '@/features/overview/schemas/conversionsByAge'
 import { formatCount, formatPercentWhole } from '@/shared/utils/formatters'
 
 type ConversionsByAgeDonutProps = {
-  data: ConversionsByAge | undefined
-  isPending: boolean
-  isError: boolean
-  errorMessage?: string
-  onRetry: () => void
+  filters: Pick<OverviewFilters, 'from' | 'to'>
   rangeLabel: string
 }
 
@@ -25,18 +23,22 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function ConversionsByAgeDonut({
-  data,
-  isPending,
-  isError,
-  errorMessage,
-  onRetry,
+  filters,
   rangeLabel,
 }: ConversionsByAgeDonutProps) {
   const [view, setView] = useState('chart')
+  const query = useOverviewConversionsByAge(filters)
+  const data = query.data
 
   const rows = data?.rows ?? []
   const isEmpty = Boolean(data && rows.length === 0)
-  const state = isPending ? 'loading' : isError ? 'error' : isEmpty ? 'empty' : 'ready'
+  const state = query.isPending
+    ? 'loading'
+    : query.isError
+      ? 'error'
+      : isEmpty
+        ? 'empty'
+        : 'ready'
 
   const largest = useMemo(() => {
     const list = data?.rows
@@ -52,8 +54,12 @@ export function ConversionsByAgeDonut({
           data ? `Share of ${formatCount(data.total)} conversions in range` : undefined
         }
         state={state}
-        errorMessage={errorMessage}
-        onRetry={onRetry}
+        errorMessage={
+          query.isError ? getErrorMessage(query.error) : undefined
+        }
+        onRetry={() => {
+          void query.refetch()
+        }}
         chartHeight={240}
         actions={
           <TabsList aria-label="Conversions by age view">

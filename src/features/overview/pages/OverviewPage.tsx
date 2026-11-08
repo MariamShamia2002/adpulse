@@ -1,15 +1,10 @@
-import { getErrorMessage } from '@/api/errors'
 import { ConversionsByAgeDonut } from '@/features/overview/components/ConversionsByAgeDonut'
 import { FilterBar } from '@/features/overview/components/FilterBar'
 import { OverviewKpiSection } from '@/features/overview/components/OverviewKpiSection'
 import { RoasByCampaignChart } from '@/features/overview/components/RoasByCampaignChart'
 import { SpendByPlatformChart } from '@/features/overview/components/SpendByPlatformChart'
 import { SpendRevenueChart } from '@/features/overview/components/SpendRevenueChart'
-import { useOverviewCampaignsRoas } from '@/features/overview/hooks/useOverviewCampaignsRoas'
-import { useOverviewConversionsByAge } from '@/features/overview/hooks/useOverviewConversionsByAge'
 import { useOverviewFilters } from '@/features/overview/hooks/useOverviewFilters'
-import { useOverviewSpendByPlatform } from '@/features/overview/hooks/useOverviewSpendByPlatform'
-import { useOverviewTimeseries } from '@/features/overview/hooks/useOverviewTimeseries'
 import {
   formatComparedRange,
   formatCurrentRange,
@@ -27,11 +22,6 @@ export default function OverviewPage() {
     setPlatform,
     setCompare,
   } = useOverviewFilters()
-
-  const timeseriesQuery = useOverviewTimeseries(filters)
-  const spendByPlatformQuery = useOverviewSpendByPlatform(filters)
-  const campaignsRoasQuery = useOverviewCampaignsRoas(filters)
-  const conversionsByAgeQuery = useOverviewConversionsByAge(filters)
 
   const previous = filters.compare
     ? previousPeriodRange(filters.from, filters.to)
@@ -71,70 +61,13 @@ export default function OverviewPage() {
       <OverviewKpiSection filters={filters} />
 
       <section aria-label="Overview charts" className={chartGridClass}>
-        <SpendRevenueChart
-          data={timeseriesQuery.data}
-          compare={filters.compare}
-          isPending={timeseriesQuery.isPending}
-          isError={timeseriesQuery.isError}
-          errorMessage={
-            timeseriesQuery.isError
-              ? getErrorMessage(timeseriesQuery.error)
-              : undefined
-          }
-          onRetry={() => {
-            void timeseriesQuery.refetch()
-          }}
-          rangeLabel={subtitle}
-        />
-        <SpendByPlatformChart
-          data={spendByPlatformQuery.data}
-          platform={filters.platform}
-          isPending={spendByPlatformQuery.isPending}
-          isError={spendByPlatformQuery.isError}
-          errorMessage={
-            spendByPlatformQuery.isError
-              ? getErrorMessage(spendByPlatformQuery.error)
-              : undefined
-          }
-          onRetry={() => {
-            void spendByPlatformQuery.refetch()
-          }}
-          rangeLabel={subtitle}
-        />
+        <SpendRevenueChart filters={filters} rangeLabel={subtitle} />
+        <SpendByPlatformChart filters={filters} rangeLabel={subtitle} />
       </section>
 
       <section aria-label="Campaign and audience charts" className={chartGridClass}>
-        <RoasByCampaignChart
-          data={campaignsRoasQuery.data?.items}
-          from={filters.from}
-          to={filters.to}
-          compare={filters.compare}
-          isPending={campaignsRoasQuery.isPending}
-          isError={campaignsRoasQuery.isError}
-          errorMessage={
-            campaignsRoasQuery.isError
-              ? getErrorMessage(campaignsRoasQuery.error)
-              : undefined
-          }
-          onRetry={() => {
-            void campaignsRoasQuery.refetch()
-          }}
-          rangeLabel={subtitle}
-        />
-        <ConversionsByAgeDonut
-          data={conversionsByAgeQuery.data}
-          isPending={conversionsByAgeQuery.isPending}
-          isError={conversionsByAgeQuery.isError}
-          errorMessage={
-            conversionsByAgeQuery.isError
-              ? getErrorMessage(conversionsByAgeQuery.error)
-              : undefined
-          }
-          onRetry={() => {
-            void conversionsByAgeQuery.refetch()
-          }}
-          rangeLabel={subtitle}
-        />
+        <RoasByCampaignChart filters={filters} rangeLabel={subtitle} />
+        <ConversionsByAgeDonut filters={filters} rangeLabel={subtitle} />
       </section>
     </div>
   )

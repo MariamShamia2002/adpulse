@@ -8,6 +8,7 @@ import {
   YAxis,
 } from 'recharts'
 
+import { getErrorMessage } from '@/api/errors'
 import {
   ChartContainer,
   ChartTooltip,
@@ -17,6 +18,7 @@ import {
 import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import { ChartCard } from '@/features/overview/components/ChartCard'
 import { SeriesLegend } from '@/features/overview/components/SeriesLegend'
+import { useOverviewSpendByPlatform } from '@/features/overview/hooks/useOverviewSpendByPlatform'
 import type { SpendByPlatform } from '@/features/overview/schemas/spendByPlatform'
 import {
   formatCurrency,
@@ -24,12 +26,7 @@ import {
 } from '@/shared/utils/formatters'
 
 type SpendByPlatformChartProps = {
-  data: SpendByPlatform | undefined
-  platform: OverviewFilters['platform']
-  isPending: boolean
-  isError: boolean
-  errorMessage?: string
-  onRetry: () => void
+  filters: OverviewFilters
   rangeLabel: string
 }
 
@@ -61,14 +58,13 @@ function applyPlatformFilter(
 }
 
 export function SpendByPlatformChart({
-  data,
-  platform,
-  isPending,
-  isError,
-  errorMessage,
-  onRetry,
+  filters,
   rangeLabel,
 }: SpendByPlatformChartProps) {
+  const query = useOverviewSpendByPlatform(filters)
+  const data = query.data
+  const platform = filters.platform
+
   const chartData = useMemo(() => {
     if (!data) return []
     return applyPlatformFilter(data.weeks, platform)
@@ -76,9 +72,9 @@ export function SpendByPlatformChart({
 
   const isEmpty = Boolean(data && data.weeks.length === 0)
 
-  const state = isPending
+  const state = query.isPending
     ? 'loading'
-    : isError
+    : query.isError
       ? 'error'
       : isEmpty
         ? 'empty'
@@ -95,8 +91,12 @@ export function SpendByPlatformChart({
       title="Spend by platform"
       subtitle="Weekly, USD"
       state={state}
-      errorMessage={errorMessage}
-      onRetry={onRetry}
+      errorMessage={
+        query.isError ? getErrorMessage(query.error) : undefined
+      }
+      onRetry={() => {
+        void query.refetch()
+      }}
       legend={<SeriesLegend items={legendItems} />}
       chartHeight={240}
     >

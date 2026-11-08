@@ -7,16 +7,18 @@ import {
   YAxis,
 } from 'recharts'
 
+import { getErrorMessage } from '@/api/errors'
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart'
+import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import { ChartCard } from '@/features/overview/components/ChartCard'
 import { SeriesLegend } from '@/features/overview/components/SeriesLegend'
+import { useOverviewTimeseries } from '@/features/overview/hooks/useOverviewTimeseries'
 import { getFiveTickIndexes } from '@/features/overview/lib/chartTicks'
-import type { OverviewTimeseries } from '@/features/overview/schemas/timeseries'
 import {
   formatAxisDate,
   formatCurrency,
@@ -25,12 +27,7 @@ import {
 } from '@/shared/utils/formatters'
 
 type SpendRevenueChartProps = {
-  data: OverviewTimeseries | undefined
-  compare: boolean
-  isPending: boolean
-  isError: boolean
-  errorMessage?: string
-  onRetry: () => void
+  filters: OverviewFilters
   rangeLabel: string
 }
 
@@ -50,14 +47,13 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function SpendRevenueChart({
-  data,
-  compare,
-  isPending,
-  isError,
-  errorMessage,
-  onRetry,
+  filters,
   rangeLabel,
 }: SpendRevenueChartProps) {
+  const query = useOverviewTimeseries(filters)
+  const data = query.data
+  const compare = filters.compare
+
   const chartData = useMemo(() => {
     if (!data) return []
 
@@ -79,9 +75,9 @@ export function SpendRevenueChart({
   const showPrevious = compare && Boolean(data?.previous?.length)
   const isEmpty = Boolean(data && data.points.length === 0)
 
-  const state = isPending
+  const state = query.isPending
     ? 'loading'
-    : isError
+    : query.isError
       ? 'error'
       : isEmpty
         ? 'empty'
@@ -100,8 +96,12 @@ export function SpendRevenueChart({
       title="Spend vs revenue"
       subtitle="Daily, USD. Hover for values. Dashed line is the previous period."
       state={state}
-      errorMessage={errorMessage}
-      onRetry={onRetry}
+      errorMessage={
+        query.isError ? getErrorMessage(query.error) : undefined
+      }
+      onRetry={() => {
+        void query.refetch()
+      }}
       legend={<SeriesLegend items={legendItems} />}
       chartHeight={260}
     >

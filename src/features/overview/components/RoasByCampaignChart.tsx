@@ -3,7 +3,9 @@ import { Link } from 'react-router'
 import { Bar, BarChart, Cell, LabelList, ReferenceLine, XAxis, YAxis } from 'recharts'
 import type { BarRectangleItem } from 'recharts/types/cartesian/Bar'
 
+import { getErrorMessage } from '@/api/errors'
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart'
+import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import { ChartCard } from '@/features/overview/components/ChartCard'
 import { RoasCampaignBarShape } from '@/features/overview/components/RoasCampaignBarShape'
 import {
@@ -12,6 +14,7 @@ import {
 } from '@/features/overview/components/RoasCampaignNameTick'
 import { RoasCampaignTooltip } from '@/features/overview/components/RoasCampaignTooltip'
 import { RoasTargetLabel } from '@/features/overview/components/RoasTargetLabel'
+import { useOverviewCampaignsRoas } from '@/features/overview/hooks/useOverviewCampaignsRoas'
 import { buildCampaignFilterSearch } from '@/features/overview/lib/campaignNav'
 import type { CampaignListItem } from '@/features/overview/schemas/campaignsList'
 import { formatRatio } from '@/shared/utils/formatters'
@@ -19,14 +22,7 @@ import { formatRatio } from '@/shared/utils/formatters'
 const ROAS_TARGET = 3
 
 type RoasByCampaignChartProps = {
-  data: CampaignListItem[] | undefined
-  from: string
-  to: string
-  compare: boolean
-  isPending: boolean
-  isError: boolean
-  errorMessage?: string
-  onRetry: () => void
+  filters: OverviewFilters
   rangeLabel: string
 }
 
@@ -37,17 +33,16 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function RoasByCampaignChart({
-  data,
-  from,
-  to,
-  compare,
-  isPending,
-  isError,
-  errorMessage,
-  onRetry,
+  filters,
   rangeLabel,
 }: RoasByCampaignChartProps) {
-  const search = buildCampaignFilterSearch(from, to, compare)
+  const query = useOverviewCampaignsRoas(filters)
+  const data = query.data?.items
+  const search = buildCampaignFilterSearch(
+    filters.from,
+    filters.to,
+    filters.compare,
+  )
 
   const chartData = useMemo<ChartRow[]>(() => {
     if (!data) return []
@@ -63,15 +58,25 @@ export function RoasByCampaignChart({
       : Math.max(...chartData.map((row) => row.roas)) * 1.1
 
   const isEmpty = Boolean(data && data.length === 0)
-  const state = isPending ? 'loading' : isError ? 'error' : isEmpty ? 'empty' : 'ready'
+  const state = query.isPending
+    ? 'loading'
+    : query.isError
+      ? 'error'
+      : isEmpty
+        ? 'empty'
+        : 'ready'
 
   return (
     <ChartCard
       title="ROAS by campaign"
       subtitle="Top 6 by ROAS"
       state={state}
-      errorMessage={errorMessage}
-      onRetry={onRetry}
+      errorMessage={
+        query.isError ? getErrorMessage(query.error) : undefined
+      }
+      onRetry={() => {
+        void query.refetch()
+      }}
       chartHeight={240}
       actions={
         <Link
