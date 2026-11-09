@@ -82,18 +82,55 @@ export async function fetchSpendByPlatform(
   return parsed.data
 }
 
-export async function fetchCampaignsByRoas(
-  filters: OverviewFilters,
-): Promise<CampaignsList> {
-  const params = buildOverviewParams(filters, { includeCompare: false })
-  params.set('sort', 'roas')
-  params.set('dir', 'desc')
-  params.set('pageSize', '6')
+export type CampaignsListParams = {
+  from: string
+  to: string
+  sort: string
+  dir: 'asc' | 'desc'
+  page: number
+  pageSize: number
+  q?: string
+  platform?: OverviewFilters['platform']
+}
 
-  const data = await apiGet<unknown>(`/api/campaigns?${params.toString()}`)
+export async function fetchCampaigns(
+  params: CampaignsListParams,
+): Promise<CampaignsList> {
+  const search = new URLSearchParams()
+  search.set('from', params.from)
+  search.set('to', params.to)
+  search.set('sort', params.sort)
+  search.set('dir', params.dir)
+  search.set('page', String(params.page))
+  search.set('pageSize', String(params.pageSize))
+
+  if (params.q) {
+    search.set('q', params.q)
+  }
+
+  if (params.platform && params.platform !== 'all') {
+    search.set('platform', params.platform)
+  }
+
+  const data = await apiGet<unknown>(`/api/campaigns?${search.toString()}`)
   const parsed = campaignsListSchema.safeParse(data)
   if (!parsed.success) throw parsed.error
   return parsed.data
+}
+
+/** Top campaigns by ROAS for the overview chart. */
+export async function fetchCampaignsByRoas(
+  filters: OverviewFilters,
+): Promise<CampaignsList> {
+  return fetchCampaigns({
+    from: filters.from,
+    to: filters.to,
+    sort: 'roas',
+    dir: 'desc',
+    page: 1,
+    pageSize: 6,
+    platform: filters.platform,
+  })
 }
 
 export async function fetchConversionsByAge(
