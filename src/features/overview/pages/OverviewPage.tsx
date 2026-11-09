@@ -1,3 +1,4 @@
+import { CampaignsTable } from '@/features/overview/components/CampaignsTable'
 import { ConversionsByAgeDonut } from '@/features/overview/components/ConversionsByAgeDonut'
 import { FilterBar } from '@/features/overview/components/FilterBar'
 import { OverviewKpiSection } from '@/features/overview/components/OverviewKpiSection'
@@ -69,6 +70,8 @@ export default function OverviewPage() {
         <RoasByCampaignChart filters={filters} rangeLabel={subtitle} />
         <ConversionsByAgeDonut filters={filters} rangeLabel={subtitle} />
       </section>
+
+      <CampaignsTable filters={filters} />
     </div>
   )
 }
