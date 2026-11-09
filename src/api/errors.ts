@@ -21,29 +21,44 @@ export function isValidationError(error: unknown): error is ApiError {
   return isApiError(error) && error.status === 400
 }
 
+export function isNotFoundError(error: unknown): error is ApiError {
+  return isApiError(error) && error.status === 404
+}
+
 /** Resolve a user-facing message from a thrown error or an API response body. */
 export function getErrorMessage(
   error: unknown,
   fallback = 'Something went wrong',
 ): string {
-  if (isApiError(error) && error.message) {
-    return error.message
+  if (isApiError(error)) {
+    const fromBody = messageFromApiBody(error.body)
+    if (fromBody) return fromBody
+    if (error.message) return error.message
   }
 
   if (error instanceof Error && error.message) {
     return error.message
   }
 
-  // Raw response body from the API: { message?: string }
-  if (
-    isApiErrorBody(error) &&
-    typeof error.message === 'string' &&
-    error.message !== ''
-  ) {
-    return error.message
-  }
+  const fromRaw = messageFromApiBody(error)
+  if (fromRaw) return fromRaw
 
   return fallback
+}
+
+function messageFromApiBody(value: unknown): string | undefined {
+  if (!isApiErrorBody(value)) return undefined
+
+  if (typeof value.message === 'string' && value.message !== '') {
+    return value.message
+  }
+
+  const nested = value.error?.message
+  if (typeof nested === 'string' && nested !== '') {
+    return nested
+  }
+
+  return undefined
 }
 
 function isApiErrorBody(value: unknown): value is ApiErrorBody {
