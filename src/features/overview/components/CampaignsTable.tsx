@@ -15,7 +15,6 @@ import {
   CAMPAIGNS_SECTION_ID,
   campaignDetailTo,
 } from '@/features/overview/lib/campaignNav'
-import { cn } from '@/lib/utils'
 import { CardSkeleton } from '@/shared/components/CardSkeleton'
 import { EmptyState } from '@/shared/components/EmptyState'
 import { ErrorState } from '@/shared/components/ErrorState'
@@ -108,10 +107,7 @@ export function CampaignsTable({ filters }: CampaignsTableProps) {
 
       {!query.isPending && !isEmpty ? (
         <>
-          <div
-            className={cn('overflow-x-auto', query.isFetching && 'opacity-60')}
-            aria-busy={query.isFetching || undefined}
-          >
+          <div className="overflow-x-auto">
             <Table className="min-w-[820px]">
               <CampaignsTableHeader sort={sort} dir={dir} onSort={setSort} />
               <TableBody>
@@ -131,20 +127,14 @@ export function CampaignsTable({ filters }: CampaignsTableProps) {
               Showing {rangeStart}–{rangeEnd} of {formatCount(total)} campaigns
             </p>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={page <= 1 || query.isFetching}
-                onClick={() => setPage(page - 1)}
-              >
+              <Button type="button" variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
                 Previous
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={rangeEnd >= total || query.isFetching}
+                disabled={rangeEnd >= total}
                 onClick={() => setPage(page + 1)}
               >
                 Next
