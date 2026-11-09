@@ -12,6 +12,7 @@ import { useCampaignsTableParams } from '@/features/overview/hooks/useCampaignsT
 import { useOverviewCampaigns } from '@/features/overview/hooks/useOverviewCampaigns'
 import {
   buildCampaignFilterSearch,
+  CAMPAIGNS_SECTION_ID,
   campaignDetailTo,
 } from '@/features/overview/lib/campaignNav'
 import { CardSkeleton } from '@/shared/components/CardSkeleton'
@@ -62,8 +63,8 @@ export function CampaignsTable({ filters }: CampaignsTableProps) {
 
   return (
     <section
-      id="campaigns"
-      className="flex flex-col gap-4 rounded-[12px] border border-border bg-surface p-5"
+      id={CAMPAIGNS_SECTION_ID}
+      className="flex scroll-mt-6 flex-col gap-4 rounded-[12px] border border-border bg-surface p-5"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">

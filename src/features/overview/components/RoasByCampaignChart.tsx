@@ -15,7 +15,11 @@ import {
 import { RoasCampaignTooltip } from '@/features/overview/components/RoasCampaignTooltip'
 import { RoasTargetLabel } from '@/features/overview/components/RoasTargetLabel'
 import { useOverviewCampaignsRoas } from '@/features/overview/hooks/useOverviewCampaignsRoas'
-import { buildCampaignFilterSearch } from '@/features/overview/lib/campaignNav'
+import {
+  buildCampaignFilterSearch,
+  campaignsSectionTo,
+  scrollToCampaignsSection,
+} from '@/features/overview/lib/campaignNav'
 import type { CampaignListItem } from '@/features/overview/schemas/campaignsList'
 import { formatRatio } from '@/shared/utils/formatters'
 
@@ -80,7 +84,8 @@ export function RoasByCampaignChart({
       chartHeight={240}
       actions={
         <Link
-          to={{ pathname: '/', search, hash: 'campaigns' }}
+          to={campaignsSectionTo(search)}
+          onClick={scrollToCampaignsSection}
           className="text-[13px] font-medium text-series-1 outline-none hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-[var(--series-1)]"
         >
           View all
