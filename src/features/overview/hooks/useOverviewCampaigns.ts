@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import {
   fetchCampaigns,
@@ -24,5 +24,7 @@ export function useOverviewCampaigns(params: CampaignsListParams) {
   return useQuery({
     queryKey: overviewCampaignsQueryKey(params),
     queryFn: () => fetchCampaigns(params),
+    // Keep prior rows visible while sort / page / search refetch.
+    placeholderData: keepPreviousData,
   })
 }

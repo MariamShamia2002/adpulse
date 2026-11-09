@@ -15,6 +15,7 @@ import {
   CAMPAIGNS_SECTION_ID,
   campaignDetailTo,
 } from '@/features/overview/lib/campaignNav'
+import { cn } from '@/lib/utils'
 import { CardSkeleton } from '@/shared/components/CardSkeleton'
 import { EmptyState } from '@/shared/components/EmptyState'
 import { ErrorState } from '@/shared/components/ErrorState'
@@ -92,7 +93,7 @@ export function CampaignsTable({ filters }: CampaignsTableProps) {
 
       {query.isPending ? <CardSkeleton variant="table" className="py-6" /> : null}
 
-      {query.isError ? (
+      {query.isError && !query.data ? (
         <ErrorState
           message={getErrorMessage(query.error)}
           onRetry={() => {
@@ -101,13 +102,16 @@ export function CampaignsTable({ filters }: CampaignsTableProps) {
         />
       ) : null}
 
-      {query.isSuccess && isEmpty ? (
+      {!query.isPending && isEmpty ? (
         <EmptyState title="No campaigns match this filter." className="py-10" />
       ) : null}
 
-      {query.isSuccess && !isEmpty ? (
+      {!query.isPending && !isEmpty ? (
         <>
-          <div className="overflow-x-auto">
+          <div
+            className={cn('overflow-x-auto', query.isFetching && 'opacity-60')}
+            aria-busy={query.isFetching || undefined}
+          >
             <Table className="min-w-[820px]">
               <CampaignsTableHeader sort={sort} dir={dir} onSort={setSort} />
               <TableBody>
@@ -127,14 +131,20 @@ export function CampaignsTable({ filters }: CampaignsTableProps) {
               Showing {rangeStart}–{rangeEnd} of {formatCount(total)} campaigns
             </p>
             <div className="flex items-center gap-2">
-              <Button type="button" variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={page <= 1 || query.isFetching}
+                onClick={() => setPage(page - 1)}
+              >
                 Previous
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={rangeEnd >= total}
+                disabled={rangeEnd >= total || query.isFetching}
                 onClick={() => setPage(page + 1)}
               >
                 Next
