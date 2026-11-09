@@ -3,11 +3,11 @@ type CampaignSparklineProps = {
   className?: string
 }
 
-const WIDTH = 72
+const WIDTH = 120
 const HEIGHT = 24
 const STROKE = 'var(--series-1)'
 
-/** Compact decorative sparkline from API trend values. */
+/** Decorative 120×24 sparkline from campaign `trend` (7-day ROAS). */
 export function CampaignSparkline({ values, className }: CampaignSparklineProps) {
   if (values.length === 0) {
     return (
