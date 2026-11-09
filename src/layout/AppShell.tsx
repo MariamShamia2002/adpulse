@@ -38,9 +38,17 @@ export default function AppShell() {
             </NavLink>
             {/* Campaigns table lives on Overview; detail routes are /campaigns/:id */}
             <Link
-              to="/"
-              className={navLinkClass({ isActive: onCampaignDetail })}
-              aria-current={onCampaignDetail ? 'page' : undefined}
+              to={{ pathname: '/', hash: 'campaigns', search: location.search }}
+              className={navLinkClass({
+                isActive:
+                  onCampaignDetail ||
+                  (location.pathname === '/' && location.hash === '#campaigns'),
+              })}
+              aria-current={
+                onCampaignDetail || location.hash === '#campaigns'
+                  ? 'page'
+                  : undefined
+              }
             >
               Campaigns
             </Link>
