@@ -26,6 +26,11 @@ const percentCompact = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 })
 
+const percentWhole = new Intl.NumberFormat('en-US', {
+  style: 'percent',
+  maximumFractionDigits: 0,
+})
+
 function compactNumber(value: number): string {
   const abs = Math.abs(value)
 
@@ -79,6 +84,12 @@ export function formatRatio(value: number): string {
 export function formatPercent(value: number, compact = false): string {
   const ratio = value > 1 || value < -1 ? value / 100 : value
   return (compact ? percentCompact : percentFull).format(ratio)
+}
+
+/** Whole percent for legends/donut center: 30% */
+export function formatPercentWhole(value: number): string {
+  const ratio = value > 1 || value < -1 ? value / 100 : value
+  return percentWhole.format(ratio)
 }
 
 /**

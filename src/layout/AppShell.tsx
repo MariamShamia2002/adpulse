@@ -1,6 +1,12 @@
+import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { Activity } from 'lucide-react'
 
+import {
+  CAMPAIGNS_SECTION_ID,
+  campaignsSectionTo,
+  scrollToCampaignsSection,
+} from '@/features/overview/lib/campaignNav'
 import { cn } from '@/lib/utils'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -14,6 +20,17 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 export default function AppShell() {
   const location = useLocation()
   const onCampaignDetail = location.pathname.startsWith('/campaigns/')
+  const onCampaignsHash =
+    location.pathname === '/' && location.hash === `#${CAMPAIGNS_SECTION_ID}`
+
+  // React Router updates the hash but does not scroll to the section.
+  useEffect(() => {
+    if (location.hash !== `#${CAMPAIGNS_SECTION_ID}`) return
+    const frame = window.requestAnimationFrame(() => {
+      scrollToCampaignsSection()
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [location.pathname, location.hash])
 
   return (
     <div className="min-h-svh bg-page text-text">
@@ -38,9 +55,16 @@ export default function AppShell() {
             </NavLink>
             {/* Campaigns table lives on Overview; detail routes are /campaigns/:id */}
             <Link
-              to="/"
-              className={navLinkClass({ isActive: onCampaignDetail })}
-              aria-current={onCampaignDetail ? 'page' : undefined}
+              to={campaignsSectionTo(location.search.replace(/^\?/, ''))}
+              className={navLinkClass({
+                isActive: onCampaignDetail || onCampaignsHash,
+              })}
+              aria-current={
+                onCampaignDetail || onCampaignsHash ? 'page' : undefined
+              }
+              onClick={() => {
+                if (onCampaignsHash) scrollToCampaignsSection()
+              }}
             >
               Campaigns
             </Link>
