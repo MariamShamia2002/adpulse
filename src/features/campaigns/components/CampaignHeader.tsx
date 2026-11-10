@@ -20,7 +20,10 @@ export function CampaignHeader({ campaign, search }: CampaignHeaderProps) {
       <nav aria-label="Breadcrumb" className="text-[12px] text-text-secondary">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
-            <Link to="/" className="hover:text-text hover:underline">
+            <Link
+              to="/"
+              className="text-series-1 transition-colors hover:text-series-1-soft"
+            >
               Overview
             </Link>
           </li>
@@ -30,7 +33,7 @@ export function CampaignHeader({ campaign, search }: CampaignHeaderProps) {
           <li>
             <Link
               to={campaignsSectionTo(search)}
-              className="hover:text-text hover:underline"
+              className="text-series-1 transition-colors hover:text-series-1-soft"
             >
               Campaigns
             </Link>

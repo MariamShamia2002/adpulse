@@ -62,13 +62,13 @@ export function FilterBar({
         ))}
       </ToggleGroup>
 
-      <div className="flex h-9 items-center gap-2 text-[13px] text-text-secondary">
+      <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-2.5 text-[13px] font-medium text-text">
         <Switch
           checked={filters.compare}
           onCheckedChange={onCompareChange}
           aria-labelledby="compare-toggle-label"
         />
-        <span id="compare-toggle-label">Compare to previous period</span>
+        <span id="compare-toggle-label">Compare</span>
       </div>
     </div>
   )

@@ -22,6 +22,11 @@ export default function AppShell() {
   const onCampaignDetail = location.pathname.startsWith('/campaigns/')
   const onCampaignsHash =
     location.pathname === '/' && location.hash === `#${CAMPAIGNS_SECTION_ID}`
+  const campaignsActive = onCampaignDetail || onCampaignsHash
+  const overviewTo = {
+    pathname: '/',
+    search: location.search,
+  } as const
 
   // React Router updates the hash but does not scroll to the section.
   useEffect(() => {
@@ -37,7 +42,7 @@ export default function AppShell() {
       <header className="border-b border-border bg-surface">
         <div className="mx-auto flex h-14 max-w-[1360px] items-center gap-6 px-4 sm:px-6 lg:px-8">
           <Link
-            to="/"
+            to={overviewTo}
             className="flex items-center gap-2 text-[15px] font-semibold tracking-[-0.01em] text-text"
           >
             <div className="rounded-md bg-series-1 p-1">
@@ -50,18 +55,27 @@ export default function AppShell() {
             aria-label="Primary"
             className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
           >
-            <NavLink to="/" end className={navLinkClass}>
+            <NavLink
+              to={overviewTo}
+              end
+              className={({ isActive }) =>
+                navLinkClass({ isActive: isActive && !onCampaignsHash })
+              }
+              aria-current={
+                location.pathname === '/' && !onCampaignsHash
+                  ? 'page'
+                  : undefined
+              }
+            >
               Overview
             </NavLink>
             {/* Campaigns table lives on Overview; detail routes are /campaigns/:id */}
             <Link
               to={campaignsSectionTo(location.search.replace(/^\?/, ''))}
               className={navLinkClass({
-                isActive: onCampaignDetail || onCampaignsHash,
+                isActive: campaignsActive,
               })}
-              aria-current={
-                onCampaignDetail || onCampaignsHash ? 'page' : undefined
-              }
+              aria-current={campaignsActive ? 'page' : undefined}
               onClick={() => {
                 if (onCampaignsHash) scrollToCampaignsSection()
               }}
