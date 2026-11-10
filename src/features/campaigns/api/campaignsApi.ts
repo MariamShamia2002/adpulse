@@ -1,4 +1,4 @@
-import { apiGet } from '@/api/client'
+import { apiGet, getApiUrl } from '@/api/client'
 import {
   campaignDetailSchema,
   type CampaignDetail,
@@ -19,13 +19,12 @@ export type CampaignDetailFilters = {
 
 function buildRangeParams(
   filters: CampaignDetailFilters,
-  options?: { includeCompare?: boolean },
 ): URLSearchParams {
   const params = new URLSearchParams()
   params.set('from', filters.from)
   params.set('to', filters.to)
 
-  if (options?.includeCompare !== false && filters.compare) {
+  if (filters.compare) {
     params.set('compare', 'true')
   }
 
@@ -74,4 +73,15 @@ export async function fetchCampaignEvents(
   const parsed = campaignEventsSchema.safeParse(data)
   if (!parsed.success) throw parsed.error
   return parsed.data
+}
+
+/** Browser download URL for campaign CSV export (from/to only). */
+export function getCampaignExportCsvUrl(
+  id: string,
+  filters: Pick<CampaignDetailFilters, 'from' | 'to'>,
+): string {
+  const params = new URLSearchParams()
+  params.set('from', filters.from)
+  params.set('to', filters.to)
+  return getApiUrl(`/api/campaigns/${id}/export.csv?${params.toString()}`)
 }
