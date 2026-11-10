@@ -54,7 +54,7 @@ function KpiStripItem({ kpi, compare }: { kpi: CampaignKpi; compare: boolean }) 
   const good = deltaRatio == null ? true : isDeltaPositive(kpi.key, direction)
 
   return (
-    <article className="flex min-w-0 flex-col gap-1 rounded-[12px] border border-border bg-surface px-4 py-3">
+    <article className="flex min-w-0 flex-col gap-1 px-4 py-3">
       <p className="text-[12px] font-medium text-text-secondary">{kpi.label}</p>
       <div className="flex flex-wrap items-end gap-2">
         <p className="text-[22px] font-bold tracking-[-0.02em] text-text tabular-nums">
@@ -87,11 +87,13 @@ export function KpiStrip({ kpis, compare }: KpiStripProps) {
   return (
     <section
       aria-label="Campaign key metrics"
-      className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))] xl:[grid-template-columns:repeat(6,minmax(0,1fr))]"
+      className="overflow-x-auto rounded-[12px] border border-border bg-surface"
     >
-      {kpis.map((kpi) => (
-        <KpiStripItem key={kpi.key} kpi={kpi} compare={compare} />
-      ))}
+      <div className="grid min-w-[720px] grid-cols-6 divide-x divide-border">
+        {kpis.map((kpi) => (
+          <KpiStripItem key={kpi.key} kpi={kpi} compare={compare} />
+        ))}
+      </div>
     </section>
   )
 }
