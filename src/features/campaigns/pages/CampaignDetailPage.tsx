@@ -1,9 +1,12 @@
+import { Download } from 'lucide-react'
 import { Link, useParams } from 'react-router'
 
 import { getErrorMessage, isNotFoundError } from '@/api/errors'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { getCampaignExportCsvUrl } from '@/features/campaigns/api/campaignsApi'
 import { CampaignHeader } from '@/features/campaigns/components/CampaignHeader'
+import { DailyPerformanceChart } from '@/features/campaigns/components/DailyPerformanceChart'
 import { KpiStrip } from '@/features/campaigns/components/KpiStrip'
 import { useCampaignDetail } from '@/features/campaigns/hooks/useCampaignDetail'
 import { useCampaignDetailFilters } from '@/features/campaigns/hooks/useCampaignDetailFilters'
@@ -20,7 +23,14 @@ import { ErrorState } from '@/shared/components/ErrorState'
 
 export default function CampaignDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { filters, preset, setPreset, setCompare } = useCampaignDetailFilters()
+  const {
+    filters,
+    metric,
+    preset,
+    setPreset,
+    setCompare,
+    setMetric,
+  } = useCampaignDetailFilters()
   const query = useCampaignDetail(id, filters)
 
   const previous = filters.compare
@@ -97,14 +107,22 @@ export default function CampaignDetailPage() {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center xl:justify-end">
           <DateRangePicker preset={preset} onPresetChange={setPreset} />
-          <div className="flex h-9 items-center gap-2 text-[13px] text-text-secondary">
+          <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-2.5 text-[13px] font-medium text-text">
             <Switch
               checked={filters.compare}
               onCheckedChange={setCompare}
               aria-labelledby="campaign-compare-label"
             />
-            <span id="campaign-compare-label">Compare to previous period</span>
+            <span id="campaign-compare-label">Compare</span>
           </div>
+          <a
+            href={getCampaignExportCsvUrl(id, filters)}
+            download
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 text-[13px] font-medium text-text outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-[var(--series-1)]"
+          >
+            <Download className="size-4 shrink-0" aria-hidden />
+            Export CSV
+          </a>
         </div>
       </div>
 
@@ -113,6 +131,14 @@ export default function CampaignDetailPage() {
       </p>
 
       <KpiStrip kpis={campaign.kpis} compare={filters.compare} />
+
+      <DailyPerformanceChart
+        campaignId={id}
+        filters={filters}
+        metric={metric}
+        onMetricChange={setMetric}
+        rangeLabel={rangeLabel}
+      />
     </div>
   )
 }
