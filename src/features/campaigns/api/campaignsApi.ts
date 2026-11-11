@@ -4,6 +4,10 @@ import {
   type CampaignAdSets,
 } from '@/features/campaigns/schemas/campaignAdSets'
 import {
+  campaignBreakdownSchema,
+  type CampaignBreakdown,
+} from '@/features/campaigns/schemas/campaignBreakdown'
+import {
   campaignDetailSchema,
   type CampaignDetail,
 } from '@/features/campaigns/schemas/campaignDetail'
@@ -91,6 +95,22 @@ export async function fetchCampaignAdSets(
     `/api/campaigns/${id}/adsets?${params.toString()}`,
   )
   const parsed = campaignAdSetsSchema.safeParse(data)
+  if (!parsed.success) throw parsed.error
+  return parsed.data
+}
+
+export async function fetchCampaignBreakdown(
+  id: string,
+  filters: Pick<CampaignDetailFilters, 'from' | 'to'>,
+): Promise<CampaignBreakdown> {
+  const params = new URLSearchParams()
+  params.set('from', filters.from)
+  params.set('to', filters.to)
+
+  const data = await apiGet<unknown>(
+    `/api/campaigns/${id}/breakdown?${params.toString()}`,
+  )
+  const parsed = campaignBreakdownSchema.safeParse(data)
   if (!parsed.success) throw parsed.error
   return parsed.data
 }
