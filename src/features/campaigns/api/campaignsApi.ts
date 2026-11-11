@@ -1,5 +1,9 @@
 import { apiGet, getApiUrl } from '@/api/client'
 import {
+  campaignAdSetsSchema,
+  type CampaignAdSets,
+} from '@/features/campaigns/schemas/campaignAdSets'
+import {
   campaignDetailSchema,
   type CampaignDetail,
 } from '@/features/campaigns/schemas/campaignDetail'
@@ -71,6 +75,22 @@ export async function fetchCampaignEvents(
     `/api/campaigns/${id}/events?${params.toString()}`,
   )
   const parsed = campaignEventsSchema.safeParse(data)
+  if (!parsed.success) throw parsed.error
+  return parsed.data
+}
+
+export async function fetchCampaignAdSets(
+  id: string,
+  filters: Pick<CampaignDetailFilters, 'from' | 'to'>,
+): Promise<CampaignAdSets> {
+  const params = new URLSearchParams()
+  params.set('from', filters.from)
+  params.set('to', filters.to)
+
+  const data = await apiGet<unknown>(
+    `/api/campaigns/${id}/adsets?${params.toString()}`,
+  )
+  const parsed = campaignAdSetsSchema.safeParse(data)
   if (!parsed.success) throw parsed.error
   return parsed.data
 }
