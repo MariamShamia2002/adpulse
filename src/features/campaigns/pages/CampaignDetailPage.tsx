@@ -175,7 +175,7 @@ function TabPanel({
   }
 
   if (tab === 'adsets') {
-    return <AdSetsSection />
+    return <AdSetsSection campaignId={campaignId} filters={filters} />
   }
 
   if (tab === 'audience') {
@@ -191,7 +191,7 @@ function TabPanel({
         onMetricChange={onMetricChange}
         rangeLabel={rangeLabel}
       />
-      <AdSetsSection />
+      <AdSetsSection campaignId={campaignId} filters={filters} />
       <AudienceSection />
     </div>
   )
