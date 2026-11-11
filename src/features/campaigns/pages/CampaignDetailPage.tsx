@@ -5,11 +5,16 @@ import { getErrorMessage, isNotFoundError } from '@/api/errors'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { getCampaignExportCsvUrl } from '@/features/campaigns/api/campaignsApi'
+import { AdSetsSection } from '@/features/campaigns/components/AdSetsSection'
+import { AudienceSection } from '@/features/campaigns/components/AudienceSection'
 import { CampaignHeader } from '@/features/campaigns/components/CampaignHeader'
+import { CampaignTabs } from '@/features/campaigns/components/CampaignTabs'
+import { CreativesEmptyState } from '@/features/campaigns/components/CreativesEmptyState'
 import { DailyPerformanceChart } from '@/features/campaigns/components/DailyPerformanceChart'
 import { KpiStrip } from '@/features/campaigns/components/KpiStrip'
 import { useCampaignDetail } from '@/features/campaigns/hooks/useCampaignDetail'
 import { useCampaignDetailFilters } from '@/features/campaigns/hooks/useCampaignDetailFilters'
+import type { CampaignTab } from '@/features/campaigns/schemas/campaignEnums'
 import { DateRangePicker } from '@/features/overview/components/DateRangePicker'
 import {
   formatComparedRange,
@@ -26,10 +31,12 @@ export default function CampaignDetailPage() {
   const {
     filters,
     metric,
+    tab,
     preset,
     setPreset,
     setCompare,
     setMetric,
+    setTab,
   } = useCampaignDetailFilters()
   const query = useCampaignDetail(id, filters)
 
@@ -130,15 +137,62 @@ export default function CampaignDetailPage() {
         Showing {rangeLabel}
       </p>
 
+      <CampaignTabs tab={tab} onTabChange={setTab} />
+
       <KpiStrip kpis={campaign.kpis} compare={filters.compare} />
 
-      <DailyPerformanceChart
+      <TabPanel
+        tab={tab}
         campaignId={id}
         filters={filters}
         metric={metric}
         onMetricChange={setMetric}
         rangeLabel={rangeLabel}
       />
+    </div>
+  )
+}
+
+type TabPanelProps = {
+  tab: CampaignTab
+  campaignId: string
+  filters: ReturnType<typeof useCampaignDetailFilters>['filters']
+  metric: ReturnType<typeof useCampaignDetailFilters>['metric']
+  onMetricChange: ReturnType<typeof useCampaignDetailFilters>['setMetric']
+  rangeLabel: string
+}
+
+function TabPanel({
+  tab,
+  campaignId,
+  filters,
+  metric,
+  onMetricChange,
+  rangeLabel,
+}: TabPanelProps) {
+  if (tab === 'creatives') {
+    return <CreativesEmptyState />
+  }
+
+  if (tab === 'adsets') {
+    return <AdSetsSection />
+  }
+
+  if (tab === 'audience') {
+    return <AudienceSection />
+  }
+
+  return (
+    <div className="space-y-6">
+      <DailyPerformanceChart
+        campaignId={campaignId}
+        filters={filters}
+        metric={metric}
+        onMetricChange={onMetricChange}
+        rangeLabel={rangeLabel}
+      />
+      <AdSetsSection />
+      <AudienceSection />
     </div>
   )
 }
