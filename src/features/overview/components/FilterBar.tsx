@@ -2,7 +2,9 @@ import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import { DateRangePicker } from '@/features/overview/components/DateRangePicker'
+import { PLATFORM_LABELS } from '@/features/overview/lib/campaignLabels'
 import type { DatePreset } from '@/features/overview/lib/dateRange'
+import type { CampaignPlatform } from '@/features/overview/schemas/campaignsList'
 import { cn } from '@/lib/utils'
 
 type FilterBarProps = {
@@ -13,11 +15,14 @@ type FilterBarProps = {
   onCompareChange: (compare: boolean) => void
 }
 
+const PLATFORM_ORDER: CampaignPlatform[] = ['meta', 'google', 'tiktok']
+
 const PLATFORMS: { value: OverviewFilters['platform']; label: string }[] = [
   { value: 'all', label: 'All' },
-  { value: 'meta', label: 'Meta' },
-  { value: 'google', label: 'Google' },
-  { value: 'tiktok', label: 'TikTok' },
+  ...PLATFORM_ORDER.map((value) => ({
+    value,
+    label: PLATFORM_LABELS[value],
+  })),
 ]
 
 export function FilterBar({
@@ -57,13 +62,13 @@ export function FilterBar({
         ))}
       </ToggleGroup>
 
-      <div className="flex h-9 items-center gap-2 text-[13px] text-text-secondary">
+      <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-2.5 text-[13px] font-medium text-text">
         <Switch
           checked={filters.compare}
           onCheckedChange={onCompareChange}
           aria-labelledby="compare-toggle-label"
         />
-        <span id="compare-toggle-label">Compare to previous period</span>
+        <span id="compare-toggle-label">Compare</span>
       </div>
     </div>
   )

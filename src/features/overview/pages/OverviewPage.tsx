@@ -1,20 +1,19 @@
-import { getErrorMessage } from '@/api/errors'
+import { CampaignsTable } from '@/features/overview/components/CampaignsTable'
+import { ConversionsByAgeDonut } from '@/features/overview/components/ConversionsByAgeDonut'
 import { FilterBar } from '@/features/overview/components/FilterBar'
-import { KpiTile } from '@/features/overview/components/KpiTile'
+import { OverviewKpiSection } from '@/features/overview/components/OverviewKpiSection'
+import { RoasByCampaignChart } from '@/features/overview/components/RoasByCampaignChart'
 import { SpendByPlatformChart } from '@/features/overview/components/SpendByPlatformChart'
 import { SpendRevenueChart } from '@/features/overview/components/SpendRevenueChart'
 import { useOverviewFilters } from '@/features/overview/hooks/useOverviewFilters'
-import { useOverviewSpendByPlatform } from '@/features/overview/hooks/useOverviewSpendByPlatform'
-import { useOverviewSummary } from '@/features/overview/hooks/useOverviewSummary'
-import { useOverviewTimeseries } from '@/features/overview/hooks/useOverviewTimeseries'
 import {
   formatComparedRange,
   formatCurrentRange,
   previousPeriodRange,
 } from '@/features/overview/lib/dateRange'
-import { CardSkeleton } from '@/shared/components/CardSkeleton'
-import { EmptyState } from '@/shared/components/EmptyState'
-import { ErrorState } from '@/shared/components/ErrorState'
+
+const chartGridClass =
+  'grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(420px,1fr))]'
 
 export default function OverviewPage() {
   const {
@@ -25,15 +24,9 @@ export default function OverviewPage() {
     setCompare,
   } = useOverviewFilters()
 
-  const summaryQuery = useOverviewSummary(filters)
-  const timeseriesQuery = useOverviewTimeseries(filters)
-  const spendByPlatformQuery = useOverviewSpendByPlatform(filters)
-
-  const previous =
-    summaryQuery.data?.previousRange ??
-    (filters.compare
-      ? previousPeriodRange(filters.from, filters.to)
-      : null)
+  const previous = filters.compare
+    ? previousPeriodRange(filters.from, filters.to)
+    : null
 
   const subtitle = filters.compare && previous
     ? `${formatCurrentRange(filters.from, filters.to)} · compared with ${formatComparedRange(previous.from, previous.to)}`
@@ -66,86 +59,19 @@ export default function OverviewPage() {
         />
       </div>
 
-      <section aria-label="Key performance indicators">
-        {summaryQuery.isPending ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={index}
-                className="rounded-[12px] border border-border bg-surface px-5 py-[18px]"
-              >
-                <CardSkeleton variant="kpi" />
-                <div className="mt-3 h-12 rounded bg-surface-muted" />
-              </div>
-            ))}
-          </div>
-        ) : null}
+      <OverviewKpiSection filters={filters} />
 
-        {summaryQuery.isError ? (
-          <div className="rounded-[12px] border border-border bg-surface px-5 py-[18px]">
-            <ErrorState
-              message={getErrorMessage(summaryQuery.error)}
-              onRetry={() => {
-                void summaryQuery.refetch()
-              }}
-            />
-          </div>
-        ) : null}
-
-        {summaryQuery.isSuccess && summaryQuery.data.kpis.length === 0 ? (
-          <div className="rounded-[12px] border border-border bg-surface px-5 py-[18px]">
-            <EmptyState title="No data for this range." />
-          </div>
-        ) : null}
-
-        {summaryQuery.isSuccess && summaryQuery.data.kpis.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {summaryQuery.data.kpis.map((kpi) => (
-              <KpiTile
-                key={kpi.key}
-                kpi={kpi}
-                compare={filters.compare}
-              />
-            ))}
-          </div>
-        ) : null}
+      <section aria-label="Overview charts" className={chartGridClass}>
+        <SpendRevenueChart filters={filters} rangeLabel={subtitle} />
+        <SpendByPlatformChart filters={filters} rangeLabel={subtitle} />
       </section>
 
-      <section
-        aria-label="Overview charts"
-        className="grid grid-cols-1 gap-4 xl:grid-cols-2"
-      >
-        <SpendRevenueChart
-          data={timeseriesQuery.data}
-          compare={filters.compare}
-          isPending={timeseriesQuery.isPending}
-          isError={timeseriesQuery.isError}
-          errorMessage={
-            timeseriesQuery.isError
-              ? getErrorMessage(timeseriesQuery.error)
-              : undefined
-          }
-          onRetry={() => {
-            void timeseriesQuery.refetch()
-          }}
-          rangeLabel={subtitle}
-        />
-        <SpendByPlatformChart
-          data={spendByPlatformQuery.data}
-          platform={filters.platform}
-          isPending={spendByPlatformQuery.isPending}
-          isError={spendByPlatformQuery.isError}
-          errorMessage={
-            spendByPlatformQuery.isError
-              ? getErrorMessage(spendByPlatformQuery.error)
-              : undefined
-          }
-          onRetry={() => {
-            void spendByPlatformQuery.refetch()
-          }}
-          rangeLabel={subtitle}
-        />
+      <section aria-label="Campaign and audience charts" className={chartGridClass}>
+        <RoasByCampaignChart filters={filters} rangeLabel={subtitle} />
+        <ConversionsByAgeDonut filters={filters} rangeLabel={subtitle} />
       </section>
+
+      <CampaignsTable filters={filters} />
     </div>
   )
 }
