@@ -34,6 +34,7 @@ export function useCampaignDetailFilters() {
     filters: overviewFilters,
     preset,
     setPreset,
+    setDateRange,
     setCompare,
   } = useOverviewFilters()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -100,6 +101,7 @@ export function useCampaignDetailFilters() {
     tab,
     preset,
     setPreset,
+    setDateRange,
     setCompare,
     setMetric,
     setTab,

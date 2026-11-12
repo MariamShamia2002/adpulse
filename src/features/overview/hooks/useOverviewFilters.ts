@@ -5,8 +5,10 @@ import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import {
   getDefaultRange,
   getPresetRange,
+  isValidDateRange,
   matchDatePreset,
   type DatePreset,
+  type DateRange,
 } from '@/features/overview/lib/dateRange'
 
 const PLATFORMS = new Set(['all', 'meta', 'google', 'tiktok'])
@@ -33,10 +35,8 @@ export function useOverviewFilters() {
     const defaults = getDefaultRange()
     const from = searchParams.get('from') ?? defaults.from
     const to = searchParams.get('to') ?? defaults.to
-    const matched = matchDatePreset(from, to)
 
-    // Only allow preset ranges (7d / 14d / 28d) — no custom picker in prototype
-    if (matched) {
+    if (isValidDateRange(from, to)) {
       return {
         from,
         to,
@@ -52,26 +52,27 @@ export function useOverviewFilters() {
     }
   }, [searchParams])
 
-  const preset: DatePreset = useMemo(
-    () => matchDatePreset(filters.from, filters.to) ?? '7d',
+  /** Matched preset, or null when the URL holds a custom range. */
+  const preset: DatePreset | null = useMemo(
+    () => matchDatePreset(filters.from, filters.to),
     [filters.from, filters.to],
   )
 
-  // Seed default from/to/compare into the URL on first visit 
+  // Seed default from/to/compare when missing or invalid
   useEffect(() => {
     const defaults = getDefaultRange()
     const from = searchParams.get('from')
     const to = searchParams.get('to')
     const hasCompare = searchParams.has('compare')
-    const rangeIsPreset =
-      from != null && to != null && matchDatePreset(from, to) != null
+    const rangeIsValid =
+      from != null && to != null && isValidDateRange(from, to)
 
-    if (rangeIsPreset && hasCompare) return
+    if (rangeIsValid && hasCompare) return
 
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
-        if (!rangeIsPreset) {
+        if (!rangeIsValid) {
           next.set('from', defaults.from)
           next.set('to', defaults.to)
         }
@@ -123,6 +124,14 @@ export function useOverviewFilters() {
     [updateParams],
   )
 
+  const setDateRange = useCallback(
+    (range: DateRange) => {
+      if (!isValidDateRange(range.from, range.to)) return
+      updateParams(range)
+    },
+    [updateParams],
+  )
+
   const setPlatform = useCallback(
     (platform: OverviewFilters['platform']) => {
       updateParams({ platform })
@@ -141,6 +150,7 @@ export function useOverviewFilters() {
     filters,
     preset,
     setPreset,
+    setDateRange,
     setPlatform,
     setCompare,
   }
