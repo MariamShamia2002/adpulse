@@ -6,7 +6,7 @@ type AdSetsSectionProps = {
   filters: Pick<CampaignDetailFilters, 'from' | 'to'>
 }
 
-/** Shared Ad sets block — used on Performance and Ad sets tabs. */
+/** Shared Ad sets block — used on Performance tab and Ad sets tabs. */
 export function AdSetsSection({ campaignId, filters }: AdSetsSectionProps) {
   return <AdSetsTable campaignId={campaignId} filters={filters} />
 }
