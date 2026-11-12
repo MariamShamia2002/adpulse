@@ -179,7 +179,7 @@ function TabPanel({
   }
 
   if (tab === 'audience') {
-    return <AudienceSection />
+    return <AudienceSection campaignId={campaignId} filters={filters} />
   }
 
   return (
@@ -192,7 +192,7 @@ function TabPanel({
         rangeLabel={rangeLabel}
       />
       <AdSetsSection campaignId={campaignId} filters={filters} />
-      <AudienceSection />
+      <AudienceSection campaignId={campaignId} filters={filters}/>
     </div>
   )
 }

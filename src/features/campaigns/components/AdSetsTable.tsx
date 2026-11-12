@@ -11,9 +11,7 @@ import {
 import type { CampaignDetailFilters } from '@/features/campaigns/api/campaignsApi'
 import { useCampaignAdSets } from '@/features/campaigns/hooks/useCampaignAdSets'
 import type { CampaignAdSet } from '@/features/campaigns/schemas/campaignAdSets'
-import { CardSkeleton } from '@/shared/components/CardSkeleton'
-import { EmptyState } from '@/shared/components/EmptyState'
-import { ErrorState } from '@/shared/components/ErrorState'
+import { ChartCard } from '@/features/overview/components/ChartCard'
 import {
   formatCount,
   formatCurrency,
@@ -81,69 +79,59 @@ export function AdSetsTable({ campaignId, filters }: AdSetsTableProps) {
   const items = query.data?.items ?? []
   const isEmpty = Boolean(query.data && items.length === 0)
 
+  const state = query.isPending
+    ? 'loading'
+    : query.isError
+      ? 'error'
+      : isEmpty
+        ? 'empty'
+        : 'ready'
+
   return (
-    <section
-      aria-label="Ad sets"
-      className="flex flex-col gap-4 rounded-[12px] border border-border bg-surface p-5"
+    <ChartCard
+      title="Ad sets"
+      subtitle="Spend share and efficiency inside this campaign for the selected range"
+      state={state}
+      errorMessage={query.isError ? getErrorMessage(query.error) : undefined}
+      onRetry={() => {
+        void query.refetch()
+      }}
+      chartHeight={240}
     >
-      <div className="space-y-1">
-        <h2 className="text-[15px] font-semibold text-text">Ad sets</h2>
-        <p className="text-[12px] font-medium text-text-secondary">
-          Spend share and efficiency inside this campaign for the selected range
-        </p>
+      <div className="overflow-x-auto">
+        <Table className="min-w-[520px]">
+          <TableHeader>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="px-3 text-[12px] font-medium text-text-secondary">
+                Ad Set
+              </TableHead>
+              <TableHead className="px-3 text-[12px] font-medium text-text-secondary">
+                Audience
+              </TableHead>
+              <TableHead className="px-3 text-[12px] font-medium text-text-secondary">
+                Spend Share
+              </TableHead>
+              <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
+                Spend
+              </TableHead>
+              <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
+                ROAS
+              </TableHead>
+              <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
+                CPA
+              </TableHead>
+              <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
+                Conversions
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((adSet) => (
+              <AdSetRow key={adSet.id} adSet={adSet} />
+            ))}
+          </TableBody>
+        </Table>
       </div>
-
-      {query.isPending ? <CardSkeleton variant="table" className="py-6" /> : null}
-
-      {query.isError ? (
-        <ErrorState
-          message={getErrorMessage(query.error)}
-          onRetry={() => {
-            void query.refetch()
-          }}
-        />
-      ) : null}
-
-      {query.isSuccess && isEmpty ? (
-        <EmptyState title="No ad sets for this range." className="py-10" />
-      ) : null}
-
-      {query.isSuccess && !isEmpty ? (
-        <div className="overflow-x-auto">
-          <Table className="min-w-[520px]">
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="px-3 text-[12px] font-medium text-text-secondary">
-                  Ad Set
-                </TableHead>
-                <TableHead className="px-3 text-[12px] font-medium text-text-secondary">
-                  Audience
-                </TableHead>
-                <TableHead className="px-3 text-[12px] font-medium text-text-secondary">
-                  Spend Share
-                </TableHead>
-                <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
-                  Spend
-                </TableHead>
-                <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
-                  ROAS
-                </TableHead>
-                <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
-                  CPA
-                </TableHead>
-                <TableHead className="px-3 text-right text-[12px] font-medium text-text-secondary">
-                  Conversions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((adSet) => (
-                <AdSetRow key={adSet.id} adSet={adSet} />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : null}
-    </section>
+    </ChartCard>
   )
 }
