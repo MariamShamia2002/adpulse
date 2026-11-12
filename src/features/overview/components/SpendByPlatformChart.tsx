@@ -97,7 +97,7 @@ export function SpendByPlatformChart({
       onRetry={() => {
         void query.refetch()
       }}
-      legend={<SeriesLegend items={legendItems} />}
+      legend={<SeriesLegend items={legendItems} marker="swatch" />}
       chartHeight={240}
     >
       <ChartContainer

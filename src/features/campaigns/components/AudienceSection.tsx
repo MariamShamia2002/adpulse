@@ -1,22 +1,65 @@
-import { EmptyState } from '@/shared/components/EmptyState'
+import { useMemo } from 'react'
+import { getErrorMessage } from '@/api/errors'
+import { AgeGenderChart } from '@/features/campaigns/components/AgeGenderChart'
+import { BreakdownTable } from '@/features/campaigns/components/BreakdownTable'
+import { useCampaignBreakdown } from '@/features/campaigns/hooks/useCampaignBreakdown'
+import type { CampaignDetailFilters } from '@/features/campaigns/api/campaignsApi'
+import { toAgeGenderBreakdownRows } from '@/features/campaigns/lib/ageGenderBreakdown'
+import { formatCurrentRange } from '@/features/overview/lib/dateRange'
+import { cn } from '@/lib/utils'
+
+type AudienceSectionProps = {
+  campaignId: string
+  filters: Pick<CampaignDetailFilters, 'from' | 'to'>
+  className?: string
+}
 
 /** Shared Audience block — used on Performance and Audience tabs. */
-export function AudienceSection() {
+export function AudienceSection({ campaignId, filters, className }: AudienceSectionProps) {
+  const query = useCampaignBreakdown(campaignId, filters)
+
+  const rows = useMemo(() => {
+    if (!query.data) return []
+    return toAgeGenderBreakdownRows(query.data.rows)
+  }, [query.data])
+
+  const isEmpty = Boolean(query.data && query.data.rows.length === 0)
+
+  const state = query.isPending
+    ? 'loading'
+    : query.isError
+      ? 'error'
+      : isEmpty
+        ? 'empty'
+        : 'ready'
+
+  const errorMessage = query.isError ? getErrorMessage(query.error) : undefined
+  const onRetry = () => {
+    void query.refetch()
+  }
+
+  const rangeLabel = formatCurrentRange(filters.from, filters.to)
+
   return (
-    <section
-      aria-label="Audience"
-      className="rounded-[12px] border border-border bg-surface p-5"
+    <div
+      className={cn(
+        'grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(420px,1fr))]',
+        className,
+      )}
     >
-      <div className="space-y-1">
-        <h2 className="text-[15px] font-semibold text-text">Audience</h2>
-        <p className="text-[12px] font-medium text-text-secondary">
-          Breakdown of performance by audience
-        </p>
-      </div>
-      <EmptyState
-        title="Audience insights will appear here."
-        className="py-10"
+      <AgeGenderChart
+        data={rows}
+        state={state}
+        rangeLabel={rangeLabel}
+        errorMessage={errorMessage}
+        onRetry={onRetry}
       />
-    </section>
+      <BreakdownTable
+        data={rows}
+        state={state}
+        errorMessage={errorMessage}
+        onRetry={onRetry}
+      />
+    </div>
   )
 }
