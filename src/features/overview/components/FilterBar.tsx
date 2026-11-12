@@ -3,14 +3,11 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { OverviewFilters } from '@/features/overview/api/overviewApi'
 import { DateRangePicker } from '@/features/overview/components/DateRangePicker'
 import { PLATFORM_LABELS } from '@/features/overview/lib/campaignLabels'
-import type { DatePreset } from '@/features/overview/lib/dateRange'
 import type { CampaignPlatform } from '@/features/overview/schemas/campaignsList'
 import { cn } from '@/lib/utils'
 
 type FilterBarProps = {
   filters: OverviewFilters
-  preset: DatePreset
-  onPresetChange: (preset: DatePreset) => void
   onPlatformChange: (platform: OverviewFilters['platform']) => void
   onCompareChange: (compare: boolean) => void
 }
@@ -27,14 +24,12 @@ const PLATFORMS: { value: OverviewFilters['platform']; label: string }[] = [
 
 export function FilterBar({
   filters,
-  preset,
-  onPresetChange,
   onPlatformChange,
   onCompareChange,
 }: FilterBarProps) {
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-end">
-      <DateRangePicker preset={preset} onPresetChange={onPresetChange} />
+      <DateRangePicker />
 
       <ToggleGroup
         value={[filters.platform]}
