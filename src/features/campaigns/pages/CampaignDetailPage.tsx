@@ -32,8 +32,6 @@ export default function CampaignDetailPage() {
     filters,
     metric,
     tab,
-    preset,
-    setPreset,
     setCompare,
     setMetric,
     setTab,
@@ -113,7 +111,7 @@ export default function CampaignDetailPage() {
         <CampaignHeader campaign={campaign} search={detailSearch} />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center xl:justify-end">
-          <DateRangePicker preset={preset} onPresetChange={setPreset} />
+          <DateRangePicker />
           <div className="flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-2.5 text-[13px] font-medium text-text">
             <Switch
               checked={filters.compare}

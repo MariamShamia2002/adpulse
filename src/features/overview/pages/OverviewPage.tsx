@@ -18,8 +18,6 @@ const chartGridClass =
 export default function OverviewPage() {
   const {
     filters,
-    preset,
-    setPreset,
     setPlatform,
     setCompare,
   } = useOverviewFilters()
@@ -52,8 +50,6 @@ export default function OverviewPage() {
 
         <FilterBar
           filters={filters}
-          preset={preset}
-          onPresetChange={setPreset}
           onPlatformChange={setPlatform}
           onCompareChange={setCompare}
         />

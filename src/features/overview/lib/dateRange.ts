@@ -22,6 +22,22 @@ export function toApiDate(date: Date): string {
   return format(date, 'yyyy-MM-dd')
 }
 
+export function isValidApiDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const parsed = parseISO(value)
+  return !Number.isNaN(parsed.getTime()) && toApiDate(parsed) === value
+}
+
+/** Inclusive range: both dates valid and from ≤ to. */
+export function isValidDateRange(from: string, to: string): boolean {
+  return isValidApiDate(from) && isValidApiDate(to) && from <= to
+}
+
+/** Latest selectable day for the picker (yesterday). */
+export function getLatestSelectableDate(today = new Date()): Date {
+  return subDays(today, 1)
+}
+
 /** Last N days ending yesterday (inclusive). */
 export function getPresetRange(preset: DatePreset, today = new Date()): DateRange {
   const to = subDays(today, 1)
