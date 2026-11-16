@@ -59,7 +59,7 @@ export function RoasByCampaignChart({
   const xMax =
     chartData.length === 0
       ? ROAS_TARGET * 1.1
-      : Math.max(...chartData.map((row) => row.roas)) * 1.1
+      : Math.max(...chartData.map((row) => row.roas), ROAS_TARGET) * 1.1
 
   const isEmpty = Boolean(data && data.length === 0)
   const state = query.isPending

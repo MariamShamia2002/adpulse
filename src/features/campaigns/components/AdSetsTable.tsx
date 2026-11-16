@@ -97,6 +97,7 @@ export function AdSetsTable({ campaignId, filters }: AdSetsTableProps) {
         void query.refetch()
       }}
       chartHeight={240}
+      skeletonVariant="table"
     >
       <div className="overflow-x-auto">
         <Table className="min-w-[520px]">

@@ -23,6 +23,7 @@ export function BreakdownTable({
       errorMessage={errorMessage}
       onRetry={onRetry}
       chartHeight={240}
+      skeletonVariant="table"
     >
       <div className="overflow-x-auto">
         <table className="w-full min-w-[280px] border-collapse text-left text-[13px]">

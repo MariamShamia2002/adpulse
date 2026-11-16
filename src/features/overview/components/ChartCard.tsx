@@ -16,6 +16,8 @@ type ChartCardProps = {
   children: ReactNode
   className?: string
   chartHeight?: number
+  /** Loading placeholder shape — use `table` for table cards. */
+  skeletonVariant?: 'chart' | 'table'
 }
 
 export function ChartCard({
@@ -29,6 +31,7 @@ export function ChartCard({
   children,
   className,
   chartHeight = 260,
+  skeletonVariant = 'chart',
 }: ChartCardProps) {
   return (
     <section
@@ -57,7 +60,7 @@ export function ChartCard({
       <div style={{ minHeight: chartHeight }}>
         {state === 'loading' ? (
           <CardSkeleton
-            variant="chart"
+            variant={skeletonVariant}
             className="w-full"
           />
         ) : null}
